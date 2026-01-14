@@ -32,11 +32,9 @@
                     <tr>
                         <th>ยศ ชื่อ</th>
                         <th>นามสกุล</th>
-                        <th>จ่ายแล้ว</th>
-                    </tr>
+                        <th>จ่ายแล้ว / ยอดเต็ม</th> </tr>
                 </thead>
-                <tbody id="userTableBody">
-                    </tbody>
+                <tbody id="userTableBody"></tbody>
             </table>
         </div>
         <div id="loading1" class="loading">กำลังโหลดข้อมูล...</div>
@@ -53,7 +51,7 @@
                 <label class="form-label">เลือกรายชื่อ</label>
                 <select id="userSelect" class="form-select" required>
                     <option value="" disabled selected>-- กรุณาเลือก --</option>
-                    </select>
+                </select>
             </div>
 
             <div class="mb-3">
@@ -76,13 +74,12 @@
 
 <script>
     // ******************************************************
-    // นำ URL ที่ได้จากการ Deploy Web App มาใส่ตรงนี้
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxOKVEb3AycbObxDS_xHZRzs4G_8AbshC89yYVaROHTXR7l-jxwdhwPXohUASBtpqmkOQ/exec'; 
+    // นำ URL Web App (อันล่าสุดที่ Deploy ใหม่) มาใส่ตรงนี้
+    const SCRIPT_URL = 'https://script.google.com/macros/s/xxxxxxxxxxxxxxxxx/exec'; 
     // ******************************************************
 
     let usersData = [];
 
-    // เริ่มต้นโหลดข้อมูลเมื่อเปิดเว็บ
     window.onload = loadData;
 
     function loadData() {
@@ -108,10 +105,13 @@
         tbody.innerHTML = '';
         data.forEach(user => {
             const tr = document.createElement('tr');
+            // ส่วนที่แก้ไข: แสดง paid / total
             tr.innerHTML = `
                 <td>${user.rankName}</td>
                 <td>${user.surname}</td>
-                <td class="text-end text-success fw-bold">${user.paid}</td>
+                <td class="text-end text-success fw-bold">
+                    ${user.paid} / ${user.total}
+                </td>
             `;
             tbody.appendChild(tr);
         });
@@ -119,12 +119,9 @@
 
     function populateDropdown(data) {
         const select = document.getElementById('userSelect');
-        // เก็บ option แรกไว้ (เลือกรายชื่อ)
         select.innerHTML = '<option value="" disabled selected>-- กรุณาเลือก --</option>';
-        
         data.forEach((user, index) => {
             const option = document.createElement('option');
-            // เก็บค่า index ไว้เพื่อดึงข้อมูลกลับมาใช้ง่ายๆ
             option.value = index; 
             option.text = `${user.rankName} ${user.surname}`;
             select.appendChild(option);
@@ -161,11 +158,10 @@
         submitBtn.disabled = true;
         loadingDiv.classList.remove('hidden');
 
-        // แปลงไฟล์เป็น Base64
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = function() {
-            const fileBase64 = reader.result.split(',')[1]; // ตัดส่วน header ออก
+            const fileBase64 = reader.result.split(',')[1];
             
             const payload = {
                 rankName: selectedUser.rankName,
@@ -176,7 +172,6 @@
                 fileBase64: fileBase64
             };
 
-            // ส่งข้อมูลไปยัง Google Apps Script
             fetch(SCRIPT_URL, {
                 method: 'POST',
                 body: JSON.stringify(payload)
@@ -203,15 +198,10 @@
     function showSuccessAndReset() {
         const successMsg = document.getElementById('successMessage');
         successMsg.classList.remove('hidden');
-        
-        // รีเซ็ตฟอร์ม
         document.getElementById('transferForm').reset();
-
         setTimeout(() => {
             successMsg.classList.add('hidden');
             showPage1();
-            // โหลดข้อมูลใหม่เพื่ออัปเดต (ถ้าต้องการ)
-            // loadData(); 
         }, 1500);
     }
 </script>
