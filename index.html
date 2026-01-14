@@ -26,13 +26,12 @@
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             background: rgba(0,0,0,0.8); color: white; padding: 20px; border-radius: 5px; z-index: 1000;
         }
-        /* CSS สำหรับจัดระเบียบรูปภาพ Logo */
         .header-logo {
             display: block;
-            margin: 0 auto 15px auto; /* จัดกึ่งกลาง และเว้นระยะด้านล่าง */
-            max-width: 200px;         /* กำหนดขนาดสูงสุด */
-            width: 100%;              /* ให้ยืดหดตามหน้าจอแต่ไม่เกิน max-width */
-            height: auto;             /* รักษาสัดส่วนภาพ */
+            margin: 0 auto 15px auto; 
+            max-width: 200px;         
+            width: 100%;              
+            height: auto;             
             object-fit: contain;
         }
         .header-title {
@@ -49,7 +48,9 @@
     <img src="https://lh3.googleusercontent.com/d/1HyqMXxWcACzARur4Rl4Q3REihhzLrf0Z" 
          alt="Logo" 
          class="header-logo"
-         onerror="this.style.display='none'"> <h3 class="header-title">ระบบการเงินครูทหาร</h3>
+         onerror="this.style.display='none'"> 
+
+    <h3 class="header-title">ระบบการเงินครูทหาร</h3>
 
     <div id="page1">
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -84,7 +85,7 @@
                 <label class="form-label">เลือกรายชื่อ</label>
                 <select id="userSelect" class="form-select" required>
                     <option value="" disabled selected>-- กรุณาเลือก --</option>
-                    </select>
+                </select>
             </div>
 
             <div class="mb-3">
@@ -95,6 +96,11 @@
             <div class="mb-3">
                 <label class="form-label">หลักฐานการโอน (สลิป)</label>
                 <input type="file" id="slipFile" class="form-control" accept="image/*" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">หมายเหตุ (ถ้ามี)</label>
+                <textarea id="note" class="form-control" rows="2" placeholder="ระบุรายละเอียดเพิ่มเติม..."></textarea>
             </div>
 
             <button type="submit" id="submitBtn" class="btn btn-success w-100">ยืนยันข้อมูล</button>
@@ -110,13 +116,12 @@
 
 <script>
     // ******************************************************
-    // นำ URL Web App (อันล่าสุดที่ Deploy ใหม่จาก Apps Script) มาใส่ตรงนี้
+    // นำ URL Web App (หลังจาก Deploy ใหม่แล้ว) มาใส่ตรงนี้
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxOKVEb3AycbObxDS_xHZRzs4G_8AbshC89yYVaROHTXR7l-jxwdhwPXohUASBtpqmkOQ/exec'; 
     // ******************************************************
 
     let usersData = [];
 
-    // เริ่มต้นโหลดข้อมูลเมื่อเปิดเว็บ
     window.onload = loadData;
 
     function loadData() {
@@ -143,9 +148,7 @@
         data.forEach(user => {
             const tr = document.createElement('tr');
             
-            // เช็คว่าจ่ายครบหรือยังเพื่อเปลี่ยนสี
             let statusColor = 'text-dark';
-            // แปลงเป็นตัวเลขเพื่อเปรียบเทียบ (ลบ comma ออกถ้ามี)
             let paidVal = parseFloat(String(user.paid).replace(/,/g,'')) || 0;
             let totalVal = parseFloat(String(user.total).replace(/,/g,'')) || 0;
             
@@ -168,12 +171,9 @@
 
     function populateDropdown(data) {
         const select = document.getElementById('userSelect');
-        // เก็บ option แรกไว้ (เลือกรายชื่อ)
         select.innerHTML = '<option value="" disabled selected>-- กรุณาเลือก --</option>';
-        
         data.forEach((user, index) => {
             const option = document.createElement('option');
-            // เก็บค่า index ไว้เพื่อดึงข้อมูลกลับมาใช้ง่ายๆ
             option.value = index; 
             option.text = `${user.rankName} ${user.surname}`;
             select.appendChild(option);
@@ -198,6 +198,7 @@
         const userIndex = document.getElementById('userSelect').value;
         const amount = document.getElementById('amount').value;
         const fileInput = document.getElementById('slipFile');
+        const note = document.getElementById('note').value; // รับค่าหมายเหตุ
         
         if (fileInput.files.length === 0) {
             alert("กรุณาอัปโหลดสลิป");
@@ -210,23 +211,21 @@
         submitBtn.disabled = true;
         loadingDiv.classList.remove('hidden');
 
-        // แปลงไฟล์เป็น Base64
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = function() {
-            // ใช้ regex เพื่อแยก base64 content อย่างปลอดภัย
             const fileBase64 = reader.result.split(',')[1];
             
             const payload = {
                 rankName: selectedUser.rankName,
                 surname: selectedUser.surname,
                 amount: amount,
+                note: note, // ส่งหมายเหตุไปด้วย
                 fileName: file.name,
                 mimeType: file.type,
                 fileBase64: fileBase64
             };
 
-            // ส่งข้อมูลไปยัง Google Apps Script
             fetch(SCRIPT_URL, {
                 method: 'POST',
                 body: JSON.stringify(payload)
@@ -254,13 +253,11 @@
         const successMsg = document.getElementById('successMessage');
         successMsg.classList.remove('hidden');
         
-        // รีเซ็ตฟอร์ม
         document.getElementById('transferForm').reset();
 
         setTimeout(() => {
             successMsg.classList.add('hidden');
             showPage1();
-            // โหลดข้อมูลใหม่เพื่ออัปเดตสถานะ
             loadData(); 
         }, 1500);
     }
