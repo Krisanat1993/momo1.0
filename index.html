@@ -72,7 +72,21 @@
             </table>
         </div>
         <div id="loading1" class="loading">กำลังโหลดข้อมูล...</div>
-    </div>
+
+        <div class="card mt-4 border-info">
+            <div class="card-header bg-info text-white">
+                ลิงก์รายการเงิน เข้า-ออก
+            </div>
+            <div class="card-body">
+                <p class="card-text">คลิกที่ปุ่มด้านล่างเพื่อดูรายละเอียดใน Google Sheets</p>
+                <a href="https://docs.google.com/spreadsheets/d/1UlQqKGGrX6bS0jjI-SGcRjJWuL3ownITAjda5yCEkjc/edit?gid=796784112#gid=796784112" 
+                   target="_blank" 
+                   class="btn btn-outline-info w-100">
+                   เปิดดูรายการเงิน (Sheet รวมข้อมูล)
+                </a>
+            </div>
+        </div>
+        </div>
 
     <div id="page2" class="hidden">
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -116,7 +130,7 @@
 
 <script>
     // ******************************************************
-    // นำ URL Web App (หลังจาก Deploy ใหม่แล้ว) มาใส่ตรงนี้
+    // นำ URL Web App ของคุณมาใส่ตรงนี้เหมือนเดิม
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxOKVEb3AycbObxDS_xHZRzs4G_8AbshC89yYVaROHTXR7l-jxwdhwPXohUASBtpqmkOQ/exec'; 
     // ******************************************************
 
@@ -198,7 +212,7 @@
         const userIndex = document.getElementById('userSelect').value;
         const amount = document.getElementById('amount').value;
         const fileInput = document.getElementById('slipFile');
-        const note = document.getElementById('note').value; // รับค่าหมายเหตุ
+        const note = document.getElementById('note').value;
         
         if (fileInput.files.length === 0) {
             alert("กรุณาอัปโหลดสลิป");
@@ -220,7 +234,7 @@
                 rankName: selectedUser.rankName,
                 surname: selectedUser.surname,
                 amount: amount,
-                note: note, // ส่งหมายเหตุไปด้วย
+                note: note,
                 fileName: file.name,
                 mimeType: file.type,
                 fileBase64: fileBase64
